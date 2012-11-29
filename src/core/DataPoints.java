@@ -12,6 +12,11 @@
 // see <http://www.gnu.org/licenses/>.
 package net.opentsdb.core;
 
+
+
+import com.google.common.collect.HashMultimap;
+
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -48,6 +53,12 @@ public interface DataPoints extends Iterable<DataPoint> {
    */
   List<String> getAggregatedTags();
 
+	/**
+	 * Returns a set of all tags and values that exist in the data points.
+	 * @return Returns a multimap of all possible key-value pairs.
+	 */
+	HashMultimap<String, String> getInclusiveTags();
+
   /**
    * Returns the number of data points.
    * <p>
@@ -80,7 +91,7 @@ public interface DataPoints extends Iterable<DataPoint> {
    * want to store individual data points, you need to copy the timestamp
    * and value out of each {@link DataPoint} into your own data structures.
    */
-  SeekableView iterator();
+  Iterator<DataPoint> iterator();
 
   /**
    * Returns the timestamp associated with the {@code i}th data point.

@@ -18,6 +18,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.HashMultimap;
 import com.stumbleupon.async.Deferred;
 
 import org.hbase.async.Bytes;
@@ -329,7 +330,13 @@ final class IncomingDataPoints implements WritableDataPoints {
     return Collections.emptyList();
   }
 
-  public int size() {
+	@Override
+	public HashMultimap<String, String> getInclusiveTags()
+	{
+		return HashMultimap.create();
+	}
+
+	public int size() {
     return size;
   }
 

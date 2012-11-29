@@ -405,6 +405,16 @@ final class HttpQuery {
                ChannelBuffers.copiedBuffer(buf, CharsetUtil.UTF_8));
   }
 
+	/**
+	 * Sends an HTTP reply to the client.
+	 * @param status The status of the request (e.g. 200 OK or 404 Not Found).
+	 * @param buf The content of the reply to send.
+	 */
+	public void sendReply(final HttpResponseStatus status,
+			final String buf) {
+		sendBuffer(status, ChannelBuffers.copiedBuffer(buf, CharsetUtil.UTF_8));
+	}
+
   /**
    * Sends an HTTP reply to the client.
    * @param status The status of the request (e.g. 200 OK or 404 Not Found).

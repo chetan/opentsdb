@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import com.google.common.collect.HashMultimap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +65,13 @@ final class Span implements DataPoints {
     return Collections.emptyList();
   }
 
-  public int size() {
+	@Override
+	public HashMultimap<String, String> getInclusiveTags()
+	{
+		return HashMultimap.create();
+	}
+
+	public int size() {
     int size = 0;
     for (final RowSeq row : rows) {
       size += row.size();

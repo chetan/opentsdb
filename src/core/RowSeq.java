@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import com.google.common.collect.HashMultimap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -240,7 +241,13 @@ final class RowSeq implements DataPoints {
     return Collections.emptyList();
   }
 
-  public int size() {
+	@Override
+	public HashMultimap<String, String> getInclusiveTags()
+	{
+		return null;  //To change body of implemented methods use File | Settings | File Templates.
+	}
+
+	public int size() {
     return qualifiers.length / 2;
   }
 

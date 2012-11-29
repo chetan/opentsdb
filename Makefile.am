@@ -32,10 +32,11 @@ tsdb_SRC := \
 	src/core/CompactionQueue.java	\
 	src/core/Const.java	\
 	src/core/DataPoint.java	\
+	src/core/DataPointImpl.java \
 	src/core/DataPoints.java	\
 	src/core/DataPointsIterator.java	\
-	src/core/IncomingDataPoints.java	\
 	src/core/IllegalDataException.java	\
+	src/core/IncomingDataPoints.java	\
 	src/core/Internal.java	\
 	src/core/Query.java	\
 	src/core/RowKey.java	\
@@ -60,10 +61,12 @@ tsdb_SRC := \
 	src/tools/UidManager.java	\
 	src/tsd/BadRequestException.java	\
 	src/tsd/ConnectionManager.java	\
+	src/tsd/FakeDataPoints.java \
 	src/tsd/GnuplotException.java	\
 	src/tsd/GraphHandler.java	\
 	src/tsd/HttpQuery.java	\
 	src/tsd/HttpRpc.java	\
+	src/tsd/JsonHandler.java \
 	src/tsd/LogsRpc.java	\
 	src/tsd/PipelineFactory.java	\
 	src/tsd/PutDataPointRpc.java	\
@@ -86,7 +89,8 @@ tsdb_DEPS = \
 	$(NETTY)	\
 	$(SLF4J_API)	\
 	$(SUASYNC)	\
-	$(ZOOKEEPER)
+	$(ZOOKEEPER) \
+	$(JSON)
 
 # Install all the .jar files in pkgdatadir.
 pkgdata_DATA = $(tsdb_DEPS) $(jar)
@@ -97,8 +101,10 @@ test_SRC := \
 	src/core/TestTags.java	\
 	src/stats/TestHistogram.java	\
 	src/tsd/TestGraphHandler.java	\
+	src/tsd/TestJsonHandler.java \
 	src/uid/TestNoSuchUniqueId.java	\
 	src/uid/TestUniqueId.java
+
 
 test_DEPS = \
 	$(tsdb_DEPS) \
