@@ -241,11 +241,10 @@ final class JsonHandler implements HttpRpc
 			writer.object();
 			writer.key("name").value(metric);
 
-			writer.key("tags").array();
+			writer.key("tags").object();
 			HashMultimap<String,String> inclusiveTags = dp.getInclusiveTags();
 			for (String tagName : inclusiveTags.keySet())
 			{
-				writer.object();
 				writer.key(tagName).array();
 
 				for (String tagValue : inclusiveTags.get(tagName))
@@ -253,9 +252,8 @@ final class JsonHandler implements HttpRpc
 					writer.value(tagValue);
 				}
 				writer.endArray();
-				writer.endObject();
 			}
-			writer.endArray();
+			writer.endObject();
 
 			writer.key("values").array();
 			for (final DataPoint d : dp)

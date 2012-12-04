@@ -43,7 +43,7 @@ public class TestJsonHandler
 		dataPoints.add(fdp);
 		JsonHandler.buildJsonResponse(outputWriter, dataPoints, startTime, endTime);
 
-		String results = "{\"results\":[{\"name\":\"test.name.one\",\"tags\":[],\"values\":[]}]}";
+		String results = "{\"results\":[{\"name\":\"test.name.one\",\"tags\":{},\"values\":[]}]}";
 
 		assertEquals(results, outputWriter.toString());
 	}
@@ -59,7 +59,7 @@ public class TestJsonHandler
 		dataPoints.add(fdp);
 		JsonHandler.buildJsonResponse(outputWriter, dataPoints, startTime, endTime);
 
-		String results = "{\"results\":[{\"name\":\"test.name.one\",\"tags\":[],\"values\":[[6,999],[7,500]]}]}";
+		String results = "{\"results\":[{\"name\":\"test.name.one\",\"tags\":{},\"values\":[[6,999],[7,500]]}]}";
 
 		assertEquals(results, outputWriter.toString());
 	}
@@ -83,7 +83,7 @@ public class TestJsonHandler
 
 		JsonHandler.buildJsonResponse(outputWriter, dataPoints, startTime, endTime);
 
-		String results = "{\"results\":[{\"name\":\"test.name.one\",\"tags\":[],\"values\":[[6,999],[7,500]]},{\"name\":\"test.name.two\",\"tags\":[],\"values\":[[6,12.5],[7,14.5]]}]}";
+		String results = "{\"results\":[{\"name\":\"test.name.one\",\"tags\":{},\"values\":[[6,999],[7,500]]},{\"name\":\"test.name.two\",\"tags\":{},\"values\":[[6,12.5],[7,14.5]]}]}";
 
 		assertEquals(results, outputWriter.toString());
 	}
@@ -105,7 +105,7 @@ public class TestJsonHandler
 		dataPoints.add(fdp);
 		JsonHandler.buildJsonResponse(outputWriter, dataPoints, startTime, endTime);
 
-		String results = "{\"results\":[{\"name\":\"test.name.one\",\"tags\":[{\"host\":[\"A\",\"B\"]},{\"client\":[\"foo\"]}],\"values\":[[6,999],[7,500]]}]}";
+		String results = "{\"results\":[{\"name\":\"test.name.one\",\"tags\":{\"host\":[\"A\",\"B\"],\"client\":[\"foo\"]},\"values\":[[6,999],[7,500]]}]}";
 
 		assertEquals(results, outputWriter.toString());
 	}
