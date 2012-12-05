@@ -108,18 +108,39 @@ final class JsonHandler implements HttpRpc
 	private void doQuery(final TSDB tsdb, final HttpQuery query)
 			throws IOException
 	{
-		final String basepath = getGnuplotBasePath(query);
+		File cacheFile = new File(getGnuplotBasePath(query)+".json");
+
 		final long start_time = getQueryStringDate(query, "start");
 		if (start_time == -1)
 		{
 			throw BadRequestException.missingParameter("start");
 		}
 		long end_time = getQueryStringDate(query, "end");
-		final long now = System.currentTimeMillis() / 1000;
 		if (end_time == -1)
 		{
-			end_time = now;
+			end_time = System.currentTimeMillis() / 1000;
 		}
+
+		long cache_time = -1;
+		try
+		{
+			String value = query.getQueryStringParam("cache_time");
+			if (value != null && !value.isEmpty())
+				cache_time = Long.parseLong(value);
+		}
+		catch (NumberFormatException e)
+		{
+			throw new BadRequestException("cache time: " + e.getMessage());
+		}
+
+		long cacheFileAge = (System.currentTimeMillis() - cacheFile.lastModified()) / 1000;
+		if (cacheFileAge < cache_time)
+		{
+			query.sendFile(cacheFile.getAbsolutePath(), 0);
+			return;
+		}
+
+
 		/*final int max_age = computeMaxAge(query, start_time, end_time, now);
 		if (!nocache && isDiskCacheHit(query, end_time, max_age, basepath))
 		{
@@ -188,7 +209,7 @@ final class JsonHandler implements HttpRpc
 			tsdbqueries[i] = null;  // free()
 		}
 
-		respondJson(query, basepath, dataPointsList, start_time, end_time);
+		respondJson(query, cacheFile, dataPointsList, start_time, end_time);
 	}
 
 
@@ -342,30 +363,28 @@ final class JsonHandler implements HttpRpc
 
 
 	/**
-	 Respond to a query that wants the output in ASCII.
-	 <p/>
-	 When a query specifies the "ascii" query string parameter, we send the
-	 data points back to the client in plain text instead of sending a PNG.
+		Respond to a query that wants the output in ASCII.
+		<p/>
+		When a query specifies the "ascii" query string parameter, we send the
+		data points back to the client in plain text instead of sending a PNG.
 
-	 @param query    The query we're currently serving.
-	 cache the result in case of a cache hit.
-	 @param basepath The base path used for the cached json file
-	 @param dataPointsList list of data points to return
-	 */
+		@param query    The query we're currently serving.
+		cache the result in case of a cache hit.
+		@param cacheFile The file used for the cached json file.
+		@param dataPointsList list of data points to return.
+	*/
 	private static void respondJson(final HttpQuery query,
-			final String basepath,
+			final File cacheFile,
 			final List<DataPoints> dataPointsList,
 			final long start_time,
 			final long end_time)
 	{
 
 
-		final String path = basepath + ".txt";
-
 		BufferedWriter fileWriter = null;
 		try
 		{
-			fileWriter = new BufferedWriter(new FileWriter(path));
+			fileWriter = new BufferedWriter(new FileWriter(cacheFile));
 
 			buildJsonResponse(fileWriter, dataPointsList, start_time, end_time);
 
@@ -397,7 +416,7 @@ final class JsonHandler implements HttpRpc
 
 		try
 		{
-			query.sendFile(path, 0);
+			query.sendFile(cacheFile.getAbsolutePath(), 0);
 		}
 		catch (IOException e)
 		{
