@@ -182,13 +182,15 @@ final class JsonHandler implements HttpRpc
 				throw new BadRequestException("end time: " + e.getMessage());
 			}
 		}
-		List<DataPoints> dataPointsList = new ArrayList<DataPoints>();
+		List<List<DataPoints>> queryResults = new ArrayList<List<DataPoints>>();
 
 		final int nqueries = tsdbqueries.length;
 		@SuppressWarnings("unchecked")
 		int npoints = 0;
 		for (int i = 0; i < nqueries; i++)
 		{
+			List<DataPoints> dataPointsList = new ArrayList<DataPoints>();
+			queryResults.add(dataPointsList);
 			try
 			{  // execute the TSDB query!
 				// XXX This is slow and will block Netty.  TODO(tsuna): Don't block.
@@ -209,7 +211,7 @@ final class JsonHandler implements HttpRpc
 			tsdbqueries[i] = null;  // free()
 		}
 
-		respondJson(query, cacheFile, dataPointsList, start_time, end_time);
+		respondJson(query, cacheFile, queryResults, start_time, end_time);
 	}
 
 
@@ -247,64 +249,71 @@ final class JsonHandler implements HttpRpc
 
 
 	/*package*/ static void buildJsonResponse(Writer outputWriter,
-			List<DataPoints> dataPointsList,
+			List<List<DataPoints>> queryResults,
 			long start_time,
 			long end_time) throws JSONException
 	{
 		JSONWriter writer = new JSONWriter(outputWriter);
 
-		writer.object().key("results").array();
+		writer.object().key("queries").array();
 
-		for (final DataPoints dp : dataPointsList)
+		for (final List<DataPoints> dataPointsList : queryResults)
 		{
-			final String metric = dp.metricName();
+			writer.object().key("results").array();
 
-			writer.object();
-			writer.key("name").value(metric);
-
-			writer.key("tags").object();
-			HashMultimap<String,String> inclusiveTags = dp.getInclusiveTags();
-			for (String tagName : inclusiveTags.keySet())
+			for (final DataPoints dp : dataPointsList)
 			{
-				writer.key(tagName).array();
+				final String metric = dp.metricName();
 
-				for (String tagValue : inclusiveTags.get(tagName))
-				{
-					writer.value(tagValue);
-				}
-				writer.endArray();
-			}
-			writer.endObject();
+				writer.object();
+				writer.key("name").value(metric);
 
-			writer.key("values").array();
-			for (final DataPoint d : dp)
-			{
-				//Trim unwanted data points
-				if (d.timestamp() < start_time || d.timestamp() > end_time)
-					continue;
+				writer.key("tags").object();
+				HashMultimap<String,String> inclusiveTags = dp.getInclusiveTags();
+				for (String tagName : inclusiveTags.keySet())
+				{
+					writer.key(tagName).array();
 
-				writer.array().value(d.timestamp());
-				if (d.isInteger())
-				{
-					writer.value(d.longValue());
-				}
-				else
-				{
-					final double value = d.doubleValue();
-					if (value != value || Double.isInfinite(value))
+					for (String tagValue : inclusiveTags.get(tagName))
 					{
-						throw new IllegalStateException("NaN or Infinity:" + value
-								+ " d=" + d );
+						writer.value(tagValue);
 					}
-					writer.value(value);
+					writer.endArray();
+				}
+				writer.endObject();
+
+				writer.key("values").array();
+				for (final DataPoint d : dp)
+				{
+					//Trim unwanted data points
+					if (d.timestamp() < start_time || d.timestamp() > end_time)
+						continue;
+
+					writer.array().value(d.timestamp());
+					if (d.isInteger())
+					{
+						writer.value(d.longValue());
+					}
+					else
+					{
+						final double value = d.doubleValue();
+						if (value != value || Double.isInfinite(value))
+						{
+							throw new IllegalStateException("NaN or Infinity:" + value
+									+ " d=" + d );
+						}
+						writer.value(value);
+					}
+					writer.endArray();
 				}
 				writer.endArray();
+				writer.endObject();
 			}
-			writer.endArray();
-			writer.endObject();
-		}
-		writer.endArray().endObject();
 
+			writer.endArray().endObject();
+		}
+
+	writer.endArray().endObject();
 	}
 
 	private static void sendBadRequestError(HttpQuery query, Exception e)
@@ -371,11 +380,11 @@ final class JsonHandler implements HttpRpc
 		@param query    The query we're currently serving.
 		cache the result in case of a cache hit.
 		@param cacheFile The file used for the cached json file.
-		@param dataPointsList list of data points to return.
+		@param queryResults list of data points to return grouped by query
 	*/
 	private static void respondJson(final HttpQuery query,
 			final File cacheFile,
-			final List<DataPoints> dataPointsList,
+			final List<List<DataPoints>> queryResults,
 			final long start_time,
 			final long end_time)
 	{
@@ -386,7 +395,7 @@ final class JsonHandler implements HttpRpc
 		{
 			fileWriter = new BufferedWriter(new FileWriter(cacheFile));
 
-			buildJsonResponse(fileWriter, dataPointsList, start_time, end_time);
+			buildJsonResponse(fileWriter, queryResults, start_time, end_time);
 
 			fileWriter.flush();
 		}

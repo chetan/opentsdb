@@ -10,6 +10,7 @@ import com.google.common.collect.HashMultimap;
 import net.opentsdb.core.DataPointImpl;
 import net.opentsdb.core.DataPoints;
 import org.json.JSONException;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.StringWriter;
@@ -20,18 +21,25 @@ import static org.junit.Assert.assertEquals;
 
 public class TestJsonHandler
 {
+	private List<List<DataPoints>> queryResults = new ArrayList<List<DataPoints>>();
 	private List<DataPoints> dataPoints = new ArrayList<DataPoints>();
 
 	private StringWriter outputWriter = new StringWriter();
 	private long startTime = 5;
 	private long endTime = 23;
 
+	@Before
+	public void init()
+	{
+		queryResults.add(dataPoints);
+	}
+
 	@Test
 	public void testEmptyDataPoints() throws JSONException
 	{
-		JsonHandler.buildJsonResponse(outputWriter, dataPoints, startTime, endTime);
+		JsonHandler.buildJsonResponse(outputWriter, queryResults, startTime, endTime);
 
-		String results = "{\"results\":[]}";
+		String results = "{\"queries\":[{\"results\":[]}]}";
 
 		assertEquals(results, outputWriter.toString());
 	}
@@ -41,9 +49,9 @@ public class TestJsonHandler
 	{
 		FakeDataPoints fdp = new FakeDataPoints("test.name.one", HashMultimap.<String, String>create());
 		dataPoints.add(fdp);
-		JsonHandler.buildJsonResponse(outputWriter, dataPoints, startTime, endTime);
+		JsonHandler.buildJsonResponse(outputWriter, queryResults, startTime, endTime);
 
-		String results = "{\"results\":[{\"name\":\"test.name.one\",\"tags\":{},\"values\":[]}]}";
+		String results = "{\"queries\":[{\"results\":[{\"name\":\"test.name.one\",\"tags\":{},\"values\":[]}]}]}";
 
 		assertEquals(results, outputWriter.toString());
 	}
@@ -57,9 +65,9 @@ public class TestJsonHandler
 		fdp.add(new DataPointImpl(7, 500));
 
 		dataPoints.add(fdp);
-		JsonHandler.buildJsonResponse(outputWriter, dataPoints, startTime, endTime);
+		JsonHandler.buildJsonResponse(outputWriter, queryResults, startTime, endTime);
 
-		String results = "{\"results\":[{\"name\":\"test.name.one\",\"tags\":{},\"values\":[[6,999],[7,500]]}]}";
+		String results = "{\"queries\":[{\"results\":[{\"name\":\"test.name.one\",\"tags\":{},\"values\":[[6,999],[7,500]]}]}]}";
 
 		assertEquals(results, outputWriter.toString());
 	}
@@ -81,9 +89,9 @@ public class TestJsonHandler
 
 		dataPoints.add(fdp2);
 
-		JsonHandler.buildJsonResponse(outputWriter, dataPoints, startTime, endTime);
+		JsonHandler.buildJsonResponse(outputWriter, queryResults, startTime, endTime);
 
-		String results = "{\"results\":[{\"name\":\"test.name.one\",\"tags\":{},\"values\":[[6,999],[7,500]]},{\"name\":\"test.name.two\",\"tags\":{},\"values\":[[6,12.5],[7,14.5]]}]}";
+		String results = "{\"queries\":[{\"results\":[{\"name\":\"test.name.one\",\"tags\":{},\"values\":[[6,999],[7,500]]},{\"name\":\"test.name.two\",\"tags\":{},\"values\":[[6,12.5],[7,14.5]]}]}]}";
 
 		assertEquals(results, outputWriter.toString());
 	}
@@ -103,9 +111,9 @@ public class TestJsonHandler
 		fdp.add(new DataPointImpl(7, 500));
 
 		dataPoints.add(fdp);
-		JsonHandler.buildJsonResponse(outputWriter, dataPoints, startTime, endTime);
+		JsonHandler.buildJsonResponse(outputWriter, queryResults, startTime, endTime);
 
-		String results = "{\"results\":[{\"name\":\"test.name.one\",\"tags\":{\"host\":[\"A\",\"B\"],\"client\":[\"foo\"]},\"values\":[[6,999],[7,500]]}]}";
+		String results = "{\"queries\":[{\"results\":[{\"name\":\"test.name.one\",\"tags\":{\"host\":[\"A\",\"B\"],\"client\":[\"foo\"]},\"values\":[[6,999],[7,500]]}]}]}";
 
 		assertEquals(results, outputWriter.toString());
 	}
