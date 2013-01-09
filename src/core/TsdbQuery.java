@@ -222,9 +222,20 @@ final class TsdbQuery implements Query {
     }
   }
 
-  public DataPoints[] run() throws HBaseException {
-    return groupByAndAggregate(findSpans());
-  }
+	public DataPoints[] run() throws HBaseException 
+		{
+		TreeMap<byte[], Span> spanMap = findSpans();
+		
+		if (aggregator == Aggregators.NON)
+			{
+			return ((DataPoints[])new ArrayList<Span>(spanMap.values()).toArray(new DataPoints[0]));
+			}
+		else
+			{
+			return groupByAndAggregate(spanMap);
+			}
+		}
+  
 
   /**
    * Finds all the {@link Span}s that match this query.

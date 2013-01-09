@@ -68,7 +68,14 @@ final class Span implements DataPoints {
 	@Override
 	public HashMultimap<String, String> getInclusiveTags()
 	{
-		return HashMultimap.create();
+		HashMultimap<String, String> multiMap = HashMultimap.create();
+		Map<String, String> tags = rows.get(0).getTags();
+		for (String key : tags.keySet())
+			{
+			multiMap.put(key, tags.get(key));
+			}
+			
+		return (multiMap);
 	}
 
 	public int size() {
