@@ -13,9 +13,12 @@
 package net.opentsdb.tools;
 
 import java.io.File;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
 
+import org.jboss.netty.channel.socket.ServerSocketChannelFactory;
+import org.jboss.netty.channel.socket.oio.OioServerSocketChannelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,10 +92,15 @@ final class TSDMain {
     final ArgP argp = new ArgP();
     CliOptions.addCommon(argp);
     argp.addOption("--port", "NUM", "TCP port to listen on.");
+    argp.addOption("--bind", "ADDR", "Address to bind to (default: 0.0.0.0).");
     argp.addOption("--staticroot", "PATH",
                    "Web root from which to serve static files (/s URLs).");
     argp.addOption("--cachedir", "PATH",
                    "Directory under which to cache result of requests.");
+    argp.addOption("--worker-threads", "NUM",
+                   "Number for async io workers (default: cpu * 2).");
+    argp.addOption("--async-io", "true|false",
+                   "Use async NIO (default true) or traditional blocking io");
     argp.addOption("--flush-interval", "MSEC",
                    "Maximum time for which a new data point can be buffered"
                    + " (default: " + DEFAULT_FLUSH_INTERVAL + ").");
@@ -113,9 +121,23 @@ final class TSDMain {
     setDirectoryInSystemProps("tsd.http.cachedir", argp.get("--cachedir"),
                               CREATE_IF_NEEDED, MUST_BE_WRITEABLE);
 
-    final NioServerSocketChannelFactory factory =
-        new NioServerSocketChannelFactory(Executors.newCachedThreadPool(),
-                                          Executors.newCachedThreadPool());
+    final ServerSocketChannelFactory factory;
+    if (argp.get("--async-io", "true").equalsIgnoreCase("true")) {
+      final int workers;
+      if (argp.has("--worker-threads")) {
+        workers = Integer.parseInt(argp.get("--worker-threads"));
+      } else {
+        workers = Runtime.getRuntime().availableProcessors() * 2;
+      }
+      factory = new
+        NioServerSocketChannelFactory(Executors.newCachedThreadPool(),
+                                      Executors.newCachedThreadPool(),
+                                      workers);
+    } else {
+      factory = new
+        OioServerSocketChannelFactory(Executors.newCachedThreadPool(),
+                                      Executors.newCachedThreadPool());
+    }
     final HBaseClient client = CliOptions.clientFromOptions(argp);
     try {
       // Make sure we don't even start if we can't find out tables.
@@ -134,8 +156,14 @@ final class TSDMain {
       server.setOption("child.keepAlive", true);
       server.setOption("reuseAddress", true);
 
+      // null is interpreted as the wildcard address.
+      InetAddress bindAddress = null;
+      if (argp.has("--bind")) {
+        bindAddress = InetAddress.getByName(argp.get("--bind"));
+      }
+
       final InetSocketAddress addr =
-        new InetSocketAddress(Integer.parseInt(argp.get("--port")));
+        new InetSocketAddress(bindAddress, Integer.parseInt(argp.get("--port")));
       server.bind(addr);
       log.info("Ready to serve on " + addr);
     } catch (Throwable e) {
