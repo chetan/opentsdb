@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import com.google.common.collect.HashMultimap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +30,7 @@ import org.hbase.async.KeyValue;
  * <p>
  * This class stores a continuous sequence of {@link RowSeq}s in memory.
  */
-final class Span implements DataPoints {
+public final class Span implements DataPoints {
 
   private static final Logger LOG = LoggerFactory.getLogger(Span.class);
 
@@ -65,20 +64,12 @@ final class Span implements DataPoints {
     return Collections.emptyList();
   }
 
-	@Override
-	public HashMultimap<String, String> getInclusiveTags()
-	{
-		HashMultimap<String, String> multiMap = HashMultimap.create();
-		Map<String, String> tags = rows.get(0).getTags();
-		for (String key : tags.keySet())
-			{
-			multiMap.put(key, tags.get(key));
-			}
-			
-		return (multiMap);
-	}
+	public Map<String, String> getInclusiveTags()
+		{
+		return (Collections.unmodifiableMap(rows.get(0).getTags()));
+		}
 
-	public int size() {
+  public int size() {
     int size = 0;
     for (final RowSeq row : rows) {
       size += row.size();

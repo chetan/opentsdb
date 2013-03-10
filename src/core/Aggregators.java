@@ -35,8 +35,6 @@ public final class Aggregators {
 
   /** Aggregator that returns the Standard Deviation of the data points. */
   public static final Aggregator DEV = new StdDev();
-  
-  public static final Aggregator NON = new None();
 
   /** Maps an aggregator name to its instance. */
   private static final HashMap<String, Aggregator> aggregators;
@@ -48,7 +46,6 @@ public final class Aggregators {
     aggregators.put("max", MAX);
     aggregators.put("avg", AVG);
     aggregators.put("dev", DEV);
-    aggregators.put("non", NON);
   }
 
   private Aggregators() {
@@ -185,21 +182,6 @@ public final class Aggregators {
     public String toString() {
       return "avg";
     }
-  }
-  
-  private static final class None implements Aggregator
-  {
-  	public long runLong(final Longs values)
-  	{
-  		return (values.nextLongValue());
-  	}
-  	
-  	public double runDouble(final Doubles values)
-  	{
-  		return (values.nextDoubleValue());
-  	}
-  	
-  	public String toString() { return ("non"); }
   }
 
   /**

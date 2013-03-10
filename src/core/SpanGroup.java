@@ -12,9 +12,6 @@
 // see <http://www.gnu.org/licenses/>.
 package net.opentsdb.core;
 
-
-import com.google.common.collect.HashMultimap;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -61,9 +58,6 @@ final class SpanGroup implements DataPoints {
    * @see #computeTags
    */
   private HashMap<String, String> tags;
-
-
-	private HashMultimap<String, String> all_tags;
 
   /**
    * The names of the tags that aren't shared by every single data point.
@@ -134,7 +128,7 @@ final class SpanGroup implements DataPoints {
    * fall within our time range, this method will silently ignore that span.
    */
   void add(final Span span) {
-    if (tags != null || all_tags != null) {
+    if (tags != null) {
       throw new AssertionError("The set of tags has already been computed"
                                + ", you can't add more Spans to " + this);
     }
@@ -178,21 +172,6 @@ final class SpanGroup implements DataPoints {
     aggregated_tags = new ArrayList<String>(discarded_tags);
   }
 
-	private void computeAllTags()
-	{
-		all_tags = HashMultimap.create();
-
-		for (Span span : spans)
-		{
-			Map<String, String> tags = span.getTags();
-
-			for (String tagName : tags.keySet())
-			{
-				all_tags.put(tagName, tags.get(tagName));
-			}
-		}
-	}
-
   public String metricName() {
     return spans.isEmpty() ? "" : spans.get(0).metricName();
   }
@@ -211,16 +190,7 @@ final class SpanGroup implements DataPoints {
     return aggregated_tags;
   }
 
-	@Override
-	public HashMultimap<String, String> getInclusiveTags()
-	{
-		if (all_tags == null)
-			computeAllTags();
-
-		return all_tags;
-	}
-
-	public int size() {
+  public int size() {
     // TODO(tsuna): There is a way of doing this way more efficiently by
     // inspecting the Spans and counting only data points that fall in
     // our time range.

@@ -196,7 +196,7 @@ final class GraphHandler implements HttpRpc {
     tsdbqueries = null;  // free()
 
     if (query.hasQueryStringParam("ascii")) {
-      respondAsciiQuery(query, max_age, basepath, plot, start_time, end_time);
+      respondAsciiQuery(query, max_age, basepath, plot);
       return;
     }
 
@@ -770,9 +770,7 @@ final class GraphHandler implements HttpRpc {
   private static void respondAsciiQuery(final HttpQuery query,
                                         final int max_age,
                                         final String basepath,
-                                        final Plot plot,
-                                        final long start_time,
-                                        final long end_time) {
+                                        final Plot plot) {
     final String path = basepath + ".txt";
     PrintWriter asciifile;
     try {
@@ -791,9 +789,6 @@ final class GraphHandler implements HttpRpc {
             .append('=').append(tag.getValue());
         }
         for (final DataPoint d : dp) {
-	       if (d.timestamp() < start_time || d.timestamp() > end_time)
-		       continue;
-
           asciifile.print(metric);
           asciifile.print(' ');
           asciifile.print(d.timestamp());

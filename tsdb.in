@@ -83,7 +83,6 @@ esac
 shift
 
 JAVA=${JAVA-'java'}
-#JVMARGS=${JVMARGS-'-enableassertions -enablesystemassertions -Dtsd.core.auto_create_metrics=true -Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=5656'}
-JVMARGS=${JVMARGS-'-enableassertions -enablesystemassertions -Dtsd.core.auto_create_metrics=true'}
+JVMARGS=${JVMARGS-'-enableassertions -enablesystemassertions'}
 test -r "$localdir/tsdb.local" && . "$localdir/tsdb.local"
 exec $JAVA $JVMARGS -classpath "$CLASSPATH" net.opentsdb.tools.$MAINCLASS "$@"
