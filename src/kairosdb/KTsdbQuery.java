@@ -15,19 +15,19 @@ public class KTsdbQuery extends TsdbQuery
 	{
 	private long m_startTime;
 	private long m_endTime;
-	
+
 	public KTsdbQuery(final TSDB tsdb, String metric, long startTime, long endTime, Map<String, String> tags)
 		{
 		super(tsdb);
-		
+
 		setStartTime(startTime);
 		setEndTime(endTime);
 		setTimeSeries(metric, tags, null, false);
-		
+
 		m_startTime = startTime;
 		m_endTime = endTime;
 		}
-	
+
 	public void run(CachedSearchResult cachedSearchResult) throws IOException
 		{
 		TreeMap<byte[], Span> spanMap = findSpans();
@@ -43,13 +43,14 @@ public class KTsdbQuery extends TsdbQuery
 					continue;
 					}
 
+				//Convert timestamps back to milliseconds
 				if (dataPoint.isInteger())
 					{
-					cachedSearchResult.addDataPoint(dataPoint.timestamp(), dataPoint.longValue());
+					cachedSearchResult.addDataPoint(dataPoint.timestamp() *1000, dataPoint.longValue());
 					}
 				else
 					{
-					cachedSearchResult.addDataPoint(dataPoint.timestamp(), dataPoint.doubleValue());
+					cachedSearchResult.addDataPoint(dataPoint.timestamp() *1000, dataPoint.doubleValue());
 					}
 				}
 			}

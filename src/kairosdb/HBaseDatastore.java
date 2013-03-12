@@ -28,7 +28,7 @@ public class HBaseDatastore extends Datastore
 	public static final String ZOO_KEEPER_BASE_PROPERTY = "kairosdb.datastore.hbase.zoo_keeper_base_dir";
 	public static final String AUTO_CREATE_METRIC_PROPERTY = "kairosdb.datastore.hbase.auto_create_metrics";
 
-	private TSDB tsdb;
+	private TSDB m_tsdb;
 
 	@Inject
 	public HBaseDatastore(@Named(TIMESERIES_TABLE_PROPERTY) String timeSeriesTable,
@@ -49,7 +49,7 @@ public class HBaseDatastore extends Datastore
 		if (autoCreateMetrics)
 			System.setProperty("tsd.core.auto_create_metrics", "true");
 
-		tsdb = new TSDB(hbaseClient, timeSeriesTable, uidTable);
+		m_tsdb = new TSDB(hbaseClient, timeSeriesTable, uidTable);
 		}
 
 
@@ -76,12 +76,12 @@ public class HBaseDatastore extends Datastore
 
 			if (dp.isInteger())
 				{
-				tsdb.addPoint(dps.getName(), timestamp, dp.getLongValue(),
+				m_tsdb.addPoint(dps.getName(), timestamp, dp.getLongValue(),
 						dps.getTags()).addErrback(new PutErrback());
 				}
 			else
 				{
-				tsdb.addPoint(dps.getName(), timestamp, (float) dp.getDoubleValue(),
+				m_tsdb.addPoint(dps.getName(), timestamp, (float) dp.getDoubleValue(),
 						dps.getTags()).addErrback(new PutErrback());
 				}
 			}
@@ -93,7 +93,7 @@ public class HBaseDatastore extends Datastore
 		try
 			{
 			// todo pass in search parameter
-			return tsdb.suggestMetrics("");
+			return m_tsdb.suggestMetrics("");
 			}
 		catch (HBaseException e)
 			{
@@ -107,7 +107,7 @@ public class HBaseDatastore extends Datastore
 		try
 			{
 			// todo pass in search parameter
-			return tsdb.suggestTagNames("");
+			return m_tsdb.suggestTagNames("");
 			}
 		catch (HBaseException e)
 			{
@@ -121,7 +121,7 @@ public class HBaseDatastore extends Datastore
 		try
 			{
 			// todo pass in search parameter
-			return tsdb.suggestTagValues("");
+			return m_tsdb.suggestTagValues("");
 			}
 		catch (HBaseException e)
 			{
@@ -134,8 +134,8 @@ public class HBaseDatastore extends Datastore
 		{
 		try
 			{
-			KTsdbQuery tsdbquery = new KTsdbQuery(tsdb, query.getName(), query.getStartTime() / 1000, query.getEndTime() / 1000, query.getTags());
-			
+			KTsdbQuery tsdbquery = new KTsdbQuery(m_tsdb, query.getName(), query.getStartTime() / 1000, query.getEndTime() / 1000, query.getTags());
+
 			tsdbquery.run(cachedSearchResult);
 			return cachedSearchResult.getRows();
 			}
@@ -150,7 +150,7 @@ public class HBaseDatastore extends Datastore
 		{
 		try
 			{
-			tsdb.shutdown().join();
+			m_tsdb.shutdown().join();
 			}
 		catch (Exception e)
 			{
