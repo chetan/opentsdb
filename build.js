@@ -5,10 +5,15 @@ var ts = Packages.tablesaw;
 
 print("===============================================");
 
+/*
+Version scheme: The first part is the version of opentsdb.  The number after
+the underscore is the revision of our code changes.
+*/
+var version = '1.1.0_1';
 var buildDir = 'tsbuild';
 var classDir = buildDir+'/classes';
 var jarDir = buildDir+'/jar';
-var target = jarDir+'/hbase_datastore.jar';
+var target = jarDir+'/hbase_datastore-'+version+'.jar';
 
 var classpath = new ja.Classpath(classDir);
 
@@ -53,8 +58,18 @@ function doCompile(rule)
 	var cmd = def.getCommand();
 	saw.exec(cmd, true);
 	}
-	
-	
+
+//------------------------------------------------------------------------------
+new rules.SimpleRule().addTarget("build/src/BuildData.java")
+		.addSource("Makefile.am")
+		.setMakeAction("doTsdbBuild");
+
+function doTsdbBuild(rule)
+	{
+	saw.exec("/bin/bash build.sh", true);
+	}
+
+
 //------------------------------------------------------------------------------
 var jarRule = new ja.JarRule("jar", target).setDescription("Build module jar for KairosDB")
 		.addDepend(compileRule)
