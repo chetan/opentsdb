@@ -9,7 +9,7 @@ print("===============================================");
 Version scheme: The first part is the version of opentsdb.  The number after
 the underscore is the revision of our code changes.
 */
-var version = '1.1.0_1';
+var version = '1.1.0_2'; //KairosDB beta2 to allow multiple tags
 var buildDir = 'tsbuild';
 var classDir = buildDir+'/classes';
 var jarDir = buildDir+'/jar';

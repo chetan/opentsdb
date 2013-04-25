@@ -10,19 +10,23 @@ import org.kairosdb.core.datastore.CachedSearchResult;
 import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.HashMap;
+
+import com.google.common.collect.SetMultimap;
 
 public class KTsdbQuery extends TsdbQuery
 	{
 	private long m_startTime;
 	private long m_endTime;
 
-	public KTsdbQuery(final TSDB tsdb, String metric, long startTime, long endTime, Map<String, String> tags)
+	public KTsdbQuery(final TSDB tsdb, String metric, long startTime, long endTime, SetMultimap<String, String> tags)
 		{
 		super(tsdb);
 
+		Map<String, String> mapTags = createMapOfTags(tags);
 		setStartTime(startTime);
 		setEndTime(endTime);
-		setTimeSeries(metric, tags, null, false);
+		setTimeSeries(metric, mapTags, null, false);
 
 		m_startTime = startTime;
 		m_endTime = endTime;
@@ -56,5 +60,26 @@ public class KTsdbQuery extends TsdbQuery
 			}
 
 		cachedSearchResult.endDataPoints();
+		}
+
+	private Map<String, String> createMapOfTags(SetMultimap<String, String> tags)
+		{
+		HashMap<String, String> ret = new HashMap<String, String>();
+		for (String key : tags.keySet())
+			{
+			boolean first = true;
+			StringBuilder values = new StringBuilder();
+			for (String value : tags.get(key))
+				{
+				if (!first)
+					values.append("|");
+				first = false;
+				values.append(value);
+				}
+
+			ret.put(key, values.toString());
+			}
+
+		return (ret);
 		}
 	}
