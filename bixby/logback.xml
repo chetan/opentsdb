@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>
+        %d{ISO8601} %-5level [%thread] %logger{0}: %msg%n
+      </pattern>
+    </encoder>
+  </appender>
+
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <File>${log.path}/tsd.log</File>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <FileNamePattern>tsd.%d{yyyy-MM-dd}.log.gz</FileNamePattern>
+      <MaxHistory>14</MaxHistory>
+    </rollingPolicy>
+    <encoder>
+      <pattern>
+        %d{ISO8601} %-5level [%thread] %logger{0}: %msg%n
+      </pattern>
+    </encoder>
+  </appender>
+
+  <appender name="CYCLIC" class="ch.qos.logback.core.read.CyclicBufferAppender">
+    <MaxSize>1024</MaxSize>
+  </appender>
+
+  <logger name="org.apache.zookeeper" level="warn"/>
+  <logger name="org.hbase.async" level="warn"/>
+  <logger name="com.stumbleupon.async" level="info"/>
+  <root level="info">
+    <appender-ref ref="FILE"/>
+  </root>
+</configuration>

@@ -1,0 +1,3 @@
+
+ROOT=$(dirname $(readlink -f $0))
+JVMARGS="-Dlog.path=$ROOT/logs" $ROOT/tsdb tsd --port=4242 --staticroot=$ROOT/staticroot --cachedir=$ROOT/tmp --auto-metric --zkquorum=localhost 2>&1 >>$ROOT/logs/tsd.out &

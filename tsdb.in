@@ -6,9 +6,13 @@ mydir=`dirname "$0"`
 # Either:
 #  abs_srcdir and abs_builddir are set: we're running in a dev tree
 #  or pkgdatadir is set: we've been installed, we respect that.
-abs_srcdir='@abs_srcdir@'
-abs_builddir='@abs_builddir@'
-pkgdatadir='@pkgdatadir@'
+abs_srcdir=''
+abs_builddir=''
+if [[ -d /var/www/opentsdb ]]; then
+  pkgdatadir='/var/www/opentsdb'
+else
+  pkgdatadir='/opt/opentsdb'
+fi
 # Either we've been installed and pkgdatadir exists, or we haven't been
 # installed and abs_srcdir / abs_builddir aren't empty.
 test -d "$pkgdatadir" || test -n "$abs_srcdir$abs_builddir" || {
@@ -21,8 +25,9 @@ if test -n "$pkgdatadir"; then
   for jar in "$pkgdatadir"/*.jar; do
     CLASSPATH="$CLASSPATH:$jar"
   done
+  CLASSPATH="${CLASSPATH#:}"
   # Add pkgdatadir itself so we can find logback.xml
-  CLASSPATH="$CLASSPATH:$pkgdatadir"
+  CLASSPATH="$pkgdatadir/:$pkgdatadir/*:$pkgdatadir/lib/:$pkgdatadir/lib/*:$CLASSPATH"
 else
   localdir="$abs_builddir"
   # If we're running out of the build tree, it's especially important that we
@@ -44,6 +49,7 @@ else
 fi
 # Remove any leading colon.
 CLASSPATH="${CLASSPATH#:}"
+CLASSPATH="'$CLASSPATH'"
 
 usage() {
   echo >&2 "usage: $me <command> [args]"
