@@ -28,6 +28,9 @@ cp -a bixby/logback.xml $dest/lib/
 cp -a src/mygnuplot.sh $dest/lib/
 echo "UI not available" > $dest/staticroot/index.html
 
+# version info
+git log -1 > $dest/VERSION
+
 cd tmp/
 tar -czf ../build/$tarball $ver/
 
