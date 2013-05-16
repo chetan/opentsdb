@@ -20,7 +20,7 @@ import net.opentsdb.core.TSDB;
 
 import java.util.List;
 
-public class HBaseDatastore extends Datastore
+public class HBaseDatastore implements Datastore
 {
 	public static final String TIMESERIES_TABLE_PROPERTY = "kairosdb.datastore.hbase.timeseries_table";
 	public static final String UNIQUEIDS_TABLE_PROPERTY = "kairosdb.datastore.hbase.uinqueids_table";
@@ -130,7 +130,7 @@ public class HBaseDatastore extends Datastore
 		}
 
 	@Override
-	protected List<DataPointRow> queryDatabase(DatastoreMetricQuery query, CachedSearchResult cachedSearchResult) throws DatastoreException
+	public List<DataPointRow> queryDatabase(DatastoreMetricQuery query, CachedSearchResult cachedSearchResult) throws DatastoreException
 		{
 		try
 			{
