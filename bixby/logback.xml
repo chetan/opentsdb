@@ -12,7 +12,7 @@
   <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <File>${log.path}/tsd.log</File>
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      <FileNamePattern>tsd.%d{yyyy-MM-dd}.log.gz</FileNamePattern>
+      <FileNamePattern>${log.path}/tsd.%d{yyyy-MM-dd}.log.gz</FileNamePattern>
       <MaxHistory>14</MaxHistory>
     </rollingPolicy>
     <encoder>
