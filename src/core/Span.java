@@ -30,7 +30,7 @@ import org.hbase.async.KeyValue;
  * <p>
  * This class stores a continuous sequence of {@link RowSeq}s in memory.
  */
-final class Span implements DataPoints {
+public final class Span implements DataPoints {
 
   private static final Logger LOG = LoggerFactory.getLogger(Span.class);
 
@@ -63,6 +63,11 @@ final class Span implements DataPoints {
   public List<String> getAggregatedTags() {
     return Collections.emptyList();
   }
+
+	public Map<String, String> getInclusiveTags()
+		{
+		return (Collections.unmodifiableMap(rows.get(0).getTags()));
+		}
 
   public int size() {
     int size = 0;

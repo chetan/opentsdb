@@ -37,7 +37,7 @@ import net.opentsdb.uid.NoSuchUniqueName;
 /**
  * Non-synchronized implementation of {@link Query}.
  */
-final class TsdbQuery implements Query {
+public class TsdbQuery implements Query {
 
   private static final Logger LOG = LoggerFactory.getLogger(TsdbQuery.class);
 
@@ -237,7 +237,7 @@ final class TsdbQuery implements Query {
    * perform the search.
    * @throws IllegalArgumentException if bad data was retreived from HBase.
    */
-  private TreeMap<byte[], Span> findSpans() throws HBaseException {
+  protected TreeMap<byte[], Span> findSpans() throws HBaseException {
     final short metric_width = tsdb.metrics.width();
     final TreeMap<byte[], Span> spans =  // The key is a row key from HBase.
       new TreeMap<byte[], Span>(new SpanCmp(metric_width));
@@ -384,6 +384,7 @@ final class TsdbQuery implements Query {
     System.arraycopy(metric, 0, end_row, 0, metric_width);
 
     final Scanner scanner = tsdb.client.newScanner(tsdb.table);
+    scanner.setMaxNumRows(1024 * 10);
     scanner.setStartKey(start_row);
     scanner.setStopKey(end_row);
     if (tags.size() > 0 || group_bys != null) {

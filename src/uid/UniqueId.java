@@ -58,7 +58,7 @@ public final class UniqueId implements UniqueIdInterface {
   /** Initial delay in ms for exponential backoff to retry failed RPCs. */
   private static final short INITIAL_EXP_BACKOFF_DELAY = 800;
   /** Maximum number of results to return in suggest(). */
-  private static final short MAX_SUGGESTIONS = 25;
+  private static final short MAX_SUGGESTIONS = Short.MAX_VALUE;
 
   /** HBase client to use.  */
   private final HBaseClient client;
