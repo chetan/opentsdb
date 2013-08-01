@@ -6,6 +6,7 @@
 
 
 cd $(dirname $(readlink -f $0))
+./bootstrap
 env ac_cv_path_GNUPLOT=`which true` GNUPLOT=`which true` ./build.sh
 ver="open$(basename -s .jar build/tsdb-*.jar)"
 dest="tmp/$ver/"
